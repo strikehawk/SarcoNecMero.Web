@@ -1,0 +1,51 @@
+.fullSize {
+    height: 100%;
+}
+.fullSize {
+    height: 100%;
+}
+.data-container label {
+    font-size: 75%;
+    color: rgba(255, 255, 255, 0.5)
+}
+
+.phases-chronologiques {
+    border: 2px solid black;
+    width: 100%;
+    display: table;
+    table-layout: fixed;
+}
+
+.phases-chronologiques > div {
+    display: table-row;
+}
+
+.phases-chronologiques .phase {
+    display: table-cell;
+    font-weight: bold;
+    background-color: white;
+    text-align: center;
+    vertical-align: middle;
+    height: 30px;
+    line-height: 30px;
+    border: 1px solid black;
+    color: black;
+    font-size:10px
+}
+.site-archeo-list {
+    padding: 0;
+}
+
+.site-archeo-list .site-archeo {
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.site-archeo-list .operation-archeo .md-list-item-text {
+    position: relative;
+    z-index: 1;
+}
+
+.site-archeo-list .operation-archeo h3 {
+    font-weight: bold;
+}

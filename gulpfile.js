@@ -9,17 +9,17 @@ var gulp = require("gulp"),
 
 var webRoot = "./wwwroot/";
 var appRoot = webRoot + "app/";
-var libsRoot = "./Scripts/libs/";
+var libsRoot = "../SarcoNecMero.Angular/libs/";
 var libsTarget = webRoot + "lib/";
-var srcRoot = "../SarcoNecMero.Angular/dist/app/";
+var srcRoot = "../SarcoNecMero.Angular/dist/";
 
 gulp.task("clean:app", function () {
     return del(appRoot + "**");
 });
 
 gulp.task("copy:app", ["clean:app"], function () {
-    return gulp.src(srcRoot + "**")
-        .pipe(gulp.dest(appRoot));
+    return gulp.src(srcRoot + "**", { base: srcRoot })
+        .pipe(gulp.dest(webRoot));
 });
 
 gulp.task("clean:libs", function () {
@@ -33,10 +33,20 @@ gulp.task("copy:libs", ["clean:libs"], function (cb) {
     //Angular
     gulp.src(libsRoot + "angular/angular.js")
         .pipe(gulp.dest(libsTarget + "angular/"));
+    gulp.src(libsRoot + "angular-animate/angular-animate.js")
+        .pipe(gulp.dest(libsTarget + "angular-animate/"));
+    gulp.src(libsRoot + "angular-aria/angular-aria.js")
+        .pipe(gulp.dest(libsTarget + "angular-aria/"));
+    gulp.src(libsRoot + "angular-messages/angular-messages.js")
+        .pipe(gulp.dest(libsTarget + "angular-messages/"));
     gulp.src(libsRoot + "angular-route/angular-route.js")
         .pipe(gulp.dest(libsTarget + "angular-route/"));
-    gulp.src(libsRoot + "angular-resource/angular-resource.js")
-        .pipe(gulp.dest(libsTarget + "angular-resource/"));
+
+    //Angular Material
+    gulp.src(libsRoot + "angular-material/angular-material*.js")
+        .pipe(gulp.dest(libsTarget + "angular-material/"));
+    gulp.src(libsRoot + "angular-material/angular-material.*css")
+        .pipe(gulp.dest(libsTarget + "angular-material/"));
 
     //Bootstrap
     gulp.src(libsRoot + "bootstrap/dist/js/bootstrap.js")
@@ -45,6 +55,10 @@ gulp.task("copy:libs", ["clean:libs"], function (cb) {
         .pipe(gulp.dest(libsTarget + "bootstrap/css/"));
     gulp.src(libsRoot + "bootstrap/dist/fonts/*.*")
         .pipe(gulp.dest(libsTarget + "bootstrap/fonts/"));
+
+    //Cesium
+    gulp.src(libsRoot + "cesium/debug/**/*.*", { base: libsRoot + "cesium/debug/" })
+    .pipe(gulp.dest(libsTarget + "cesium/"));
 
     cb();
 });
