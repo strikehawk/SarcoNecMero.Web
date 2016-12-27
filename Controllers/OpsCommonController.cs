@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SarcoNecMero.Web.Models.DAL;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SarcoNecMero.Web.Controllers
 {
@@ -13,10 +14,10 @@ namespace SarcoNecMero.Web.Controllers
         }
 
         [HttpGet("[action]")]
-        public IEnumerable<Commune> Commune()
+        public IEnumerable<dynamic> Commune()
         {
             var repo = unitOfWork.GetRepository<Commune>();
-            return repo.Get();
+            return repo.Get().Select(o => GetCommune(o));
         }
 
         [HttpGet("[action]")]
@@ -31,6 +32,18 @@ namespace SarcoNecMero.Web.Controllers
         {
             var repo = unitOfWork.GetRepository<ReferentielIdentificationSites>();
             return repo.Get();
+        }
+
+        private dynamic GetCommune(Commune commune)
+        {
+            return new {
+                Code = commune.Code,
+                Nom = commune.Nom,
+                X = commune.X,
+                Y = commune.Y,
+                DepartementId = commune.Departement,
+                CodeRegion = commune.CodeRegion
+            };
         }
     }
 }
