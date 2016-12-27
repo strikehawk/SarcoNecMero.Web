@@ -16,6 +16,7 @@ namespace SarcoNecMero.Web.Controllers
         {
             repo = unitOfWork.GetRepository<OperationArcheo>();
         }
+
         [HttpGet()]
         public IEnumerable<dynamic> Get()
         {
