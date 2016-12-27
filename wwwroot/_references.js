@@ -56,3 +56,5 @@
 /// <reference path="lib/cesium/Workers/transferTypedArrayTest.js" />
 /// <reference path="lib/cesium/Workers/upsampleQuantizedTerrainMesh.js" />
 /// <reference path="lib/jquery/jquery.js" />
+/// <reference path="lib/ol3/ol.js" />
+/// <reference path="lib/ol3/ol-debug.js" />

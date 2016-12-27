@@ -56,9 +56,13 @@ gulp.task("copy:libs", ["clean:libs"], function (cb) {
     gulp.src(libsRoot + "bootstrap/dist/fonts/*.*")
         .pipe(gulp.dest(libsTarget + "bootstrap/fonts/"));
 
+    //OL3
+    gulp.src(libsRoot + "ol3/**/*.*", { base: libsRoot + "ol3/" })
+        .pipe(gulp.dest(libsTarget + "ol3/"));
+
     //Cesium
     gulp.src(libsRoot + "cesium/debug/**/*.*", { base: libsRoot + "cesium/debug/" })
-    .pipe(gulp.dest(libsTarget + "cesium/"));
+        .pipe(gulp.dest(libsTarget + "cesium/"));
 
     cb();
 });
