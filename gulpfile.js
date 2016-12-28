@@ -60,6 +60,10 @@ gulp.task("copy:libs", ["clean:libs"], function (cb) {
     gulp.src(libsRoot + "ol3/**/*.*", { base: libsRoot + "ol3/" })
         .pipe(gulp.dest(libsTarget + "ol3/"));
 
+    //Proj4
+    gulp.src(libsRoot + "proj4/dist/proj4.js")
+        .pipe(gulp.dest(libsTarget + "proj4/"));
+
     //Cesium
     gulp.src(libsRoot + "cesium/debug/**/*.*", { base: libsRoot + "cesium/debug/" })
         .pipe(gulp.dest(libsTarget + "cesium/"));
