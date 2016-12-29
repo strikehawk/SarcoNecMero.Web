@@ -41,6 +41,8 @@ gulp.task("copy:libs", ["clean:libs"], function (cb) {
         .pipe(gulp.dest(libsTarget + "angular-messages/"));
     gulp.src(libsRoot + "angular-route/angular-route.js")
         .pipe(gulp.dest(libsTarget + "angular-route/"));
+    gulp.src(libsRoot + "angular-i18n/angular-locale_fr-fr.js")
+    .pipe(gulp.dest(libsTarget + "angular/"));
 
     //Angular Material
     gulp.src(libsRoot + "angular-material/angular-material*.js")
@@ -63,10 +65,6 @@ gulp.task("copy:libs", ["clean:libs"], function (cb) {
     //Proj4
     gulp.src(libsRoot + "proj4/dist/proj4.js")
         .pipe(gulp.dest(libsTarget + "proj4/"));
-
-    //Cesium
-    gulp.src(libsRoot + "cesium/debug/**/*.*", { base: libsRoot + "cesium/debug/" })
-        .pipe(gulp.dest(libsTarget + "cesium/"));
 
     cb();
 });

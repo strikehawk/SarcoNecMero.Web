@@ -1,6 +1,6 @@
-.fullSize {
-    height: 100%;
-}
+/*.md-nav-bar .md-nav-item a, .md-nav-bar .md-button._md-nav-button.md-unselected a  {*/
+    /*color: #ffffff;*/
+/*}*/
 .data-container label {
     font-size: 75%;
     color: rgba(255, 255, 255, 0.5)
@@ -28,6 +28,9 @@
     border: 1px solid black;
     color: black;
     font-size:10px
+}
+.map-toolbar span {
+    font-size: 12px;
 }
 .site-archeo-list {
     padding: 0;

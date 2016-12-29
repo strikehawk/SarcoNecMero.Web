@@ -11,6 +11,8 @@ namespace SarcoNecMero.Web.Controllers
         {
             var settings = new DefaultSettings();
             settings.OpsReferentialId = 1;
+            settings.StartZoom = 10;
+            settings.HomeLocation = new[] { 652000f, 6862300f };
 
             return settings;
         }
