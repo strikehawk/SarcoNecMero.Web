@@ -20,6 +20,20 @@ namespace SarcoNecMero.Web.Controllers
             return repo.Get().Select(o => GetCommune(o));
         }
 
+        [HttpGet("commune/coords")]
+        public dynamic Commune([FromQuery] int x, [FromQuery] int y)
+        {
+            var commune = unitOfWork.Context.GetCommune(x, y);
+
+            if (commune == null) return null;
+
+            return new {
+                Code = commune.Code,
+                Nom = commune.Nom,
+                Departement = commune.Departement
+            };
+        }
+
         [HttpGet("[action]")]
         public IEnumerable<Departement> Departement()
         {

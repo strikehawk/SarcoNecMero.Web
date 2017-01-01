@@ -1,11 +1,44 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SarcoNecMero.Web.Models.DAL;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace SarcoNecMero.Web.Controllers
 {
+    public class IReferenceSite
+    {
+        public int ReferentielId { get; set; }
+
+        public string Reference { get; set; }
+    }
+
+    public class ISite
+    {
+        public int Id { get; set; }
+
+        public int? CodeCommune { get; set; }
+
+        public string Commune { get; set; }
+
+        public int? Departement { get; set; }
+
+        public int? X { get; set; }
+
+        public int? Y { get; set; }
+
+        public string Localisation { get; set; }
+
+        public int? DebutOccupationId { get; set; }
+
+        public int? FinOccupationId { get; set; }
+
+        public int? PlanId { get; set; }
+
+        //public IReferenceSite[] Identifications { get; set; }
+    }
+
     [Route("api/ops/sites")]
     public class SiteArcheoController : DataController
     {
@@ -47,11 +80,31 @@ namespace SarcoNecMero.Web.Controllers
                 .FirstOrDefault();
         }
 
+        [HttpPost("{id}")]
+        public dynamic Post(int id, [FromBody] ISite data)
+        {
+            if (data == null) throw new ArgumentNullException("data");
+
+            var site = repo.Get().Where(o => o.Id == data.Id).FirstOrDefault();
+
+            if (site == null) return null;
+
+            site.Localisation = data.Localisation;
+            site.X = data.X;
+            site.Y = data.Y;
+            site.CodeCommune = data.CodeCommune;
+
+            unitOfWork.Save();
+
+            return GetSummarySite(site);
+        }
+
         private dynamic GetSummarySite(SiteArcheo site)
         {
             if (site == null) return null;
 
-            return new {
+            return new
+            {
                 Id = site.Id,
                 CodeCommune = site.CodeCommune,
                 Commune = site.Commune != null ? site.Commune.Nom : string.Empty,
@@ -63,7 +116,8 @@ namespace SarcoNecMero.Web.Controllers
                 FinOccupationId = site.FinOccupationId,
                 PlanId = site.PlanId,
                 Operations = site.Operations.Select(GetOperation),
-                Identifications = site.Identifications.Select(o => new {
+                Identifications = site.Identifications.Select(o => new
+                {
                     ReferentielId = o.ReferentielId,
                     Reference = o.Reference
                 })
@@ -91,7 +145,8 @@ namespace SarcoNecMero.Web.Controllers
                 DebutOccupationId = op.DebutOccupationId,
                 FinOccupationId = op.FinOccupationId,
                 PlanId = op.PlanId,
-                Identifications = op.Identifications.Select(o => new {
+                Identifications = op.Identifications.Select(o => new
+                {
                     ReferentielId = o.ReferentielId,
                     Reference = o.Reference
                 })
