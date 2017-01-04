@@ -50,13 +50,9 @@ gulp.task("copy:libs", ["clean:libs"], function (cb) {
     gulp.src(libsRoot + "angular-material/angular-material.*css")
         .pipe(gulp.dest(libsTarget + "angular-material/"));
 
-    //Bootstrap
-    gulp.src(libsRoot + "bootstrap/dist/js/bootstrap.js")
-        .pipe(gulp.dest(libsTarget + "bootstrap/js/"));
-    gulp.src(libsRoot + "bootstrap/dist/css/*.css")
-        .pipe(gulp.dest(libsTarget + "bootstrap/css/"));
-    gulp.src(libsRoot + "bootstrap/dist/fonts/*.*")
-        .pipe(gulp.dest(libsTarget + "bootstrap/fonts/"));
+    //lodash
+    gulp.src(libsRoot + "lodash/lodash*.js")
+        .pipe(gulp.dest(libsTarget + "lodash/"));
 
     //OL3
     gulp.src(libsRoot + "ol3/**/*.*", { base: libsRoot + "ol3/" })

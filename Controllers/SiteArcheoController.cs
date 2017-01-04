@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using SarcoNecMero.Web.Models.DAL;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace SarcoNecMero.Web.Controllers
@@ -28,6 +30,8 @@ namespace SarcoNecMero.Web.Controllers
 
         public int? Y { get; set; }
 
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Le nom du site ne peut pas être vide.")]
+        [StringLength(250, ErrorMessage = "Le nom du site peut contenir 250 caractères maximum.")]
         public string Localisation { get; set; }
 
         public int? DebutOccupationId { get; set; }
@@ -43,11 +47,13 @@ namespace SarcoNecMero.Web.Controllers
     public class SiteArcheoController : DataController
     {
         private IGenericRepository<SiteArcheo> repo;
+        private IGenericRepository<Commune> repoCommune;
 
         public SiteArcheoController(UnitOfWork unitOfWork) :
             base(unitOfWork)
         {
             repo = unitOfWork.GetRepository<SiteArcheo>();
+            repoCommune = unitOfWork.GetRepository<Commune>();
         }
 
         [HttpGet("[action]")]
@@ -85,7 +91,21 @@ namespace SarcoNecMero.Web.Controllers
         {
             if (data == null) throw new ArgumentNullException("data");
 
+            if (!ModelState.IsValid)
+            {
+                return new
+                {
+                    Messages = ModelState.Values
+                    .Where(o => o.ValidationState == ModelValidationState.Invalid)
+                    .SelectMany(o => o.Errors)
+                    .Select(o => o.ErrorMessage)
+                    .ToArray()
+                };
+            }
+
             var site = repo.Get().Where(o => o.Id == data.Id).FirstOrDefault();
+            var commune = repoCommune.GetByID(data.CodeCommune);
+            site.Commune = commune;
 
             if (site == null) return null;
 
