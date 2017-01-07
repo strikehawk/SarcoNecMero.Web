@@ -1,0 +1,15 @@
+<md-list class="md-dense site-archeo-list">
+    <div ng-repeat="commune in $ctrl.communes" class="md-whiteframe-1dp">
+        <md-toolbar class="md-no-sticky md-primary md-toolbar-tools site-archeo">
+            <div class="site-archeo">
+                <span>{{commune.nom}}</span>
+                <span ng-if="commune.departement"> ({{commune.departement}})</span>
+            </div>
+        </md-toolbar>
+        <md-list-item class="md-2-line md-long-text operation-archeo" ng-repeat="site in commune.sites"
+                      ng-click="$ctrl.selectSite({siteId: site.id})">
+            <span>{{site.reference}} {{site.localisation}}</span>
+        </md-list-item>
+        <md-divider></md-divider>
+    </div>
+</md-list>

@@ -1,0 +1,48 @@
+<form name="siteForm" layout="column" ng-cloak="" class="md-inline-form site-page" flex>
+    <md-content md-theme="docs-dark" class="site-header-edition">
+        <div layout="row" flex>
+            <md-input-container class="md-block site-reference">
+                <label>Référence</label>
+                <input  required md-maxlength="50" name="reference" ng-model="vm.site.reference">
+
+                <div ng-messages="siteForm.reference.$error" ng-show="siteForm.reference.$dirty">
+                    <div ng-message="required">La référence du site ne peut pas être vide.</div>
+                    <div ng-message="md-maxlength">La référence du site peut contenir 50 caractères maximum.</div>
+                </div>
+            </md-input-container>
+
+            <md-input-container class="md-block" flex>
+                <label>Site</label>
+                <input required md-maxlength="250" name="localisation" ng-model="vm.site.localisation">
+
+                <div ng-messages="siteForm.localisation.$error" ng-show="siteForm.localisation.$dirty">
+                    <div ng-message="required">Le nom du site ne peut pas être vide.</div>
+                    <div ng-message="md-maxlength">Le nom du site peut contenir 250 caractères maximum.</div>
+                </div>
+            </md-input-container>
+
+            <site-localisation site="vm.site" allow-edition="true" event-block="vm.eventBlock"></site-localisation>
+        </div>
+    </md-content>
+    <div id="content" flex>
+        <site-ops-map site="vm.site" event-block="vm.eventBlock"
+                      on-pick="vm.onPickLocation(coordinates)" layout-padding=""></site-ops-map>
+    </div>
+    <md-toolbar>
+        <div class="md-toolbar-tools">
+            <span flex></span>
+            <md-button class="md-raised md-primary md-hue-2" aria-label="Enregistrer" ng-click="vm.save()">
+                Enregistrer
+                <md-tooltip>
+                    Enregistrer les changements
+                </md-tooltip>
+            </md-button>
+            <md-button aria-label="Annuler" ng-click="vm.cancel()">
+                Annuler
+                <md-tooltip>
+                    Annuler les changements
+                </md-tooltip>
+            </md-button>
+        </div>
+    </md-toolbar>
+</form>

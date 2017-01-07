@@ -1,0 +1,9 @@
+<div layout="row" layout-align="end none" flex>
+    <div flex layout="column">
+        <div id="map" flex tabindex="-1"></div>
+        <map-toolbar map="vm.map"></map-toolbar>
+    </div>
+    <md-content md-component-id="list" md-whiteframe="5" flex="25">
+        <site-archeo-list communes="vm.communes" on-select="vm.onSelectSite(siteId)"></site-archeo-list>
+    </md-content>
+</div>

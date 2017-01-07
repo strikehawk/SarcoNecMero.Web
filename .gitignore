@@ -1,9 +1,7 @@
 .git/
+.vscode/
 bin/
 node_modules/
 obj/
 Properties/
-wwwroot/app/
-wwwroot/lib/
-Scripts/libs/
 *.xproj.user

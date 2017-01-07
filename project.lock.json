@@ -3,6 +3,20 @@
   "version": 2,
   "targets": {
     ".NETCoreApp,Version=v1.0": {
+      "BundlerMinifier.Core/2.2.306": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.NETCore.App": "1.1.0",
+          "NUglify": "1.5.1",
+          "Newtonsoft.Json": "9.0.1"
+        },
+        "compile": {
+          "lib/netcoreapp1.0/dotnet-bundle.dll": {}
+        },
+        "runtime": {
+          "lib/netcoreapp1.0/dotnet-bundle.dll": {}
+        }
+      },
       "Libuv/1.9.1": {
         "type": "package",
         "dependencies": {
@@ -2001,6 +2015,19 @@
         },
         "runtime": {
           "lib/netstandard1.0/NuGet.Versioning.dll": {}
+        }
+      },
+      "NUglify/1.5.1": {
+        "type": "package",
+        "dependencies": {
+          "NETStandard.Library": "1.6.0",
+          "System.Security.Cryptography.Algorithms": "4.2.0"
+        },
+        "compile": {
+          "lib/netstandard1.3/NUglify.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard1.3/NUglify.dll": {}
         }
       },
       "Remotion.Linq/2.1.1": {
@@ -4299,14 +4326,14 @@
           "lib/netstandard1.3/System.Xml.XPath.XDocument.dll": {}
         }
       },
-      "WindowsAzure.Storage/7.2.1": {
+      "WindowsAzure.Storage/8.0.0": {
         "type": "package",
         "dependencies": {
-          "Microsoft.Data.OData": "5.6.4",
-          "Microsoft.Data.Services.Client": "5.6.4",
+          "Microsoft.Data.OData": "5.7.0",
+          "Microsoft.Data.Services.Client": "5.7.0",
           "NETStandard.Library": "1.6.0",
           "Newtonsoft.Json": "9.0.1",
-          "System.Spatial": "5.6.4"
+          "System.Spatial": "5.7.0"
         },
         "compile": {
           "lib/netstandard1.3/Microsoft.WindowsAzure.Storage.dll": {}
@@ -4318,6 +4345,18 @@
     }
   },
   "libraries": {
+    "BundlerMinifier.Core/2.2.306": {
+      "sha512": "3MhXe3qLroL+Fe4Uo/7cmtYQ3YPjSHIjfuHxpewVZUdU4mh73wLEKAgf9rr3OLTuEXCbJr8bOBdwjuNwfGR8qw==",
+      "type": "package",
+      "path": "BundlerMinifier.Core/2.2.306",
+      "files": [
+        "BundlerMinifier.Core.2.2.306.nupkg.sha512",
+        "BundlerMinifier.Core.nuspec",
+        "lib/net452/dotnet-bundle.exe",
+        "lib/netcoreapp1.0/dotnet-bundle.dll",
+        "lib/netcoreapp1.0/dotnet-bundle.runtimeconfig.json"
+      ]
+    },
     "Libuv/1.9.1": {
       "sha512": "uqX2Frwf9PW8MaY7PRNY6HM5BpW1D8oj1EdqzrmbEFD5nH63Yat3aEjN/tws6Tw6Fk7LwmLBvtUh32tTeTaHiA==",
       "type": "package",
@@ -6063,6 +6102,21 @@
         "lib/net45/NuGet.Versioning.xml",
         "lib/netstandard1.0/NuGet.Versioning.dll",
         "lib/netstandard1.0/NuGet.Versioning.xml"
+      ]
+    },
+    "NUglify/1.5.1": {
+      "sha512": "iYV/OtSs+HgyE/RilY7UvGXYec6r0OJenWlPIdX/IivedVpSSdzxvPvUIyWpiV/6ad7VjantH0/6oaOhAZbaoQ==",
+      "type": "package",
+      "path": "NUglify/1.5.1",
+      "files": [
+        "NUglify.1.5.1.nupkg.sha512",
+        "NUglify.nuspec",
+        "lib/net35/NUglify.dll",
+        "lib/net35/NUglify.xml",
+        "lib/net40/NUglify.dll",
+        "lib/net40/NUglify.xml",
+        "lib/netstandard1.3/NUglify.dll",
+        "lib/netstandard1.3/NUglify.xml"
       ]
     },
     "Remotion.Linq/2.1.1": {
@@ -11081,16 +11135,18 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "WindowsAzure.Storage/7.2.1": {
-      "sha512": "PWSqaIFaUvi2DgHeDotoRtv1new1m3jfwsb+T6nZfpVdYYIzyYUOFPBxJ0f8yHUq8C9Na8avNc08YsdgDIoTZg==",
+    "WindowsAzure.Storage/8.0.0": {
+      "sha512": "y0xMNM++Eyoeygba8r++XTxSiARyJY0n7lcRHmkVQuPmFGbt+Cd6eKGYEGd1Tj1oETuQ+UkFNHnRjnTcd+rbxA==",
       "type": "package",
-      "path": "WindowsAzure.Storage/7.2.1",
+      "path": "WindowsAzure.Storage/8.0.0",
       "files": [
-        "WindowsAzure.Storage.7.2.1.nupkg.sha512",
+        "WindowsAzure.Storage.8.0.0.nupkg.sha512",
         "WindowsAzure.Storage.nuspec",
-        "lib/net40/Microsoft.WindowsAzure.Storage.dll",
-        "lib/net40/Microsoft.WindowsAzure.Storage.pdb",
-        "lib/net40/Microsoft.WindowsAzure.Storage.xml",
+        "lib/net45/Microsoft.WindowsAzure.Storage.dll",
+        "lib/net45/Microsoft.WindowsAzure.Storage.pdb",
+        "lib/net45/Microsoft.WindowsAzure.Storage.xml",
+        "lib/netstandard1.0/Microsoft.WindowsAzure.Storage.dll",
+        "lib/netstandard1.0/Microsoft.WindowsAzure.Storage.pdb",
         "lib/netstandard1.3/Microsoft.WindowsAzure.Storage.dll",
         "lib/netstandard1.3/Microsoft.WindowsAzure.Storage.pdb",
         "lib/win8/Microsoft.WindowsAzure.Storage.dll",
@@ -11104,6 +11160,7 @@
   },
   "projectFileDependencyGroups": {
     "": [
+      "BundlerMinifier.Core >= 2.2.306",
       "Microsoft.AspNetCore.Diagnostics >= 1.1.0",
       "Microsoft.AspNetCore.Mvc >= 1.1.0",
       "Microsoft.AspNetCore.Razor.Tools >= 1.0.0-preview2-final",
@@ -11126,26 +11183,12 @@
       "Microsoft.NETCore.App >= 1.1.0",
       "Microsoft.VisualStudio.Web.BrowserLink.Loader >= 14.1.0",
       "System.Spatial >= 5.8.1",
-      "WindowsAzure.Storage >= 7.2.1"
+      "WindowsAzure.Storage >= 8.0.0"
     ],
     ".NETCoreApp,Version=v1.0": []
   },
   "tools": {
     ".NETCoreApp,Version=v1.0": {
-      "BundlerMinifier.Core/2.0.238": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.App": "1.0.0",
-          "NUglify": "1.5.0",
-          "Newtonsoft.Json": "9.0.1"
-        },
-        "compile": {
-          "lib/netcoreapp1.0/dotnet-bundle.dll": {}
-        },
-        "runtime": {
-          "lib/netcoreapp1.0/dotnet-bundle.dll": {}
-        }
-      },
       "Microsoft.AspNetCore.Razor.Tools/1.0.0-preview2-final": {
         "type": "package",
         "dependencies": {
@@ -11185,7 +11228,6 @@
   },
   "projectFileToolGroups": {
     ".NETCoreApp,Version=v1.0": [
-      "BundlerMinifier.Core >= 2.0.238",
       "Microsoft.AspNetCore.Razor.Tools >= 1.0.0-preview2-final",
       "Microsoft.AspNetCore.Server.IISIntegration.Tools >= 1.0.0-preview2-final"
     ]
