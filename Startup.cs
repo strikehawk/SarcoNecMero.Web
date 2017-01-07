@@ -34,7 +34,7 @@ namespace SarcoNecMero.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<SarcoNecMeroContext>(options => options.UseSqlServer(Configuration["DatabaseCnx"]));
+            services.AddDbContext<SarcoNecMeroContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DatabaseCnx")));
 
             services.AddTransient<UnitOfWork>();
             services.AddTransient<IIllustrationService>(provider => new IllustrationService(Configuration["StorageIllusCnx"]));

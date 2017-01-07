@@ -9,17 +9,17 @@
     <title>SarcoNecMero</title>
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic">
+    <link rel="stylesheet" href="~/lib/angular-material/angular-material.min.css" />
 
     <environment names="Development">
-        <link rel="stylesheet" href="~/lib/angular-material/angular-material.min.css" />
         <link rel="stylesheet" href="~/lib/ol3/ol-debug.css" />
         <link rel="stylesheet" href="~/css/site.css" />
         <link rel="stylesheet" href="~/assets/css/sarconecmero.css" />
     </environment>
     <environment names="Staging,Production">
         <link rel="stylesheet" href="~/lib/ol3/ol.css" />
-        <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
-        <link rel="stylesheet" href="~/assets/css/sarconecmero.min.css" />
+        <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/assets/css/sarconecmero.css" />
     </environment>
 </head>
 <body layout="column">
@@ -54,7 +54,7 @@
         <script src="~/lib/proj4/proj4.js"></script>
         <script src="~/lib/ol3/ol.js"></script>
         <script src="~/lib/lodash/lodash.min.js"></script>
-        <script src="~/app/sarconecmero.min.js"></script>
+        <script src="~/app/sarconecmero.js"></script>
     </environment>
 </body>
 </html>
