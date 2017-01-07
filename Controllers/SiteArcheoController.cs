@@ -13,7 +13,13 @@ namespace SarcoNecMero.Web.Controllers
     {
         public int ReferentielId { get; set; }
 
+        [Required(AllowEmptyStrings = false, ErrorMessage = "La référence du site ne peut pas être vide.")]
+        [StringLength(50, ErrorMessage = "La référence du site peut contenir 50 caractères maximum.")]
         public string Reference { get; set; }
+
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Le nom du site ne peut pas être vide.")]
+        [StringLength(250, ErrorMessage = "Le nom du site peut contenir 250 caractères maximum.")]
+        public string Nom { get; set; }
     }
 
     public class ISite
@@ -40,7 +46,7 @@ namespace SarcoNecMero.Web.Controllers
 
         public int? PlanId { get; set; }
 
-        //public IReferenceSite[] Identifications { get; set; }
+        public IReferenceSite[] Identifications { get; set; }
     }
 
     [Route("api/ops/sites")]
@@ -139,7 +145,8 @@ namespace SarcoNecMero.Web.Controllers
                 Identifications = site.Identifications.Select(o => new
                 {
                     ReferentielId = o.ReferentielId,
-                    Reference = o.Reference
+                    Reference = o.Reference,
+                    Nom = o.Nom
                 })
             };
         }

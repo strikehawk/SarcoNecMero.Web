@@ -98,7 +98,6 @@
 .site-localisation .coordinates {
     font-size: 12px;
 }
-.site-ops-map #map {
-    width: 500px;
+.site-ops-map .map {
     height: 400px;
 }
