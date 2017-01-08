@@ -54,6 +54,10 @@ gulp.task("copy:libs", ["clean:libs"], function (cb) {
     gulp.src(libsRoot + "lodash/lodash*.js")
         .pipe(gulp.dest(libsTarget + "lodash/"));
 
+    //es6-shim
+    gulp.src(libsRoot + "es6-shim/es6-shim*.js")
+        .pipe(gulp.dest(libsTarget + "es6-shim/"));
+
     //OL3
     gulp.src(libsRoot + "ol3/**/*.*", { base: libsRoot + "ol3/" })
         .pipe(gulp.dest(libsTarget + "ol3/"));
