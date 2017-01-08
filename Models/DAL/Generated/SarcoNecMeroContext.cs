@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using SarcoNecMero.Web.Models.DAL.Sarcos;
 
 namespace SarcoNecMero.Web.Models.DAL
 {
@@ -1406,6 +1407,12 @@ namespace SarcoNecMero.Web.Models.DAL
                 entity.Property(e => e.Nom)
                     .IsRequired()
                     .HasColumnType("varchar(50)");
+            });
+
+            //TODO: Find a way to manage ad-hoc types outside of this method
+            modelBuilder.Entity<IllustrationPanneauSummary>(entity => 
+            {
+                entity.HasKey(e => e.IllustrationId);
             });
         }
 
