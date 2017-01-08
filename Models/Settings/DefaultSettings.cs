@@ -16,5 +16,10 @@
         /// The starting center of the map, in EPSG:2154.
         /// </summary>
         public float[] HomeLocation { get; set; }
+
+        /// <summary>
+        /// The root URL of the illustration storage container.
+        /// </summary>
+        public string IllustrationStorageRootUrl { get; set; }
     }
 }

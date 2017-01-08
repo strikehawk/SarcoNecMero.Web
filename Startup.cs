@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using SarcoNecMero.Web.Models.Configuration;
 using SarcoNecMero.Web.Models.DAL;
 using SarcoNecMero.Web.Services;
 
@@ -38,6 +39,9 @@ namespace SarcoNecMero.Web
 
             services.AddTransient<UnitOfWork>();
             services.AddTransient<IIllustrationService>(provider => new IllustrationService(Configuration["StorageIllusCnx"]));
+
+            //Configure Configuration accessors
+            services.Configure<BlobStorageConfiguration>(Configuration.GetSection("Storage"));
 
             // Add framework services.
             services
