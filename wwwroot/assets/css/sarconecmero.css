@@ -44,9 +44,9 @@
 .site-page .site-reference, .site-page .site-header-edition md-input-container.site-reference {
     width: 200px;
 }
-/*.md-nav-bar .md-nav-item a, .md-nav-bar .md-button._md-nav-button.md-unselected a  {*/
-    /*color: #ffffff;*/
-/*}*/
+md-nav-bar .md-button._md-nav-button.md-unselected {
+    color: rgba(255, 255, 255, 0.54);
+}
 .phases-chronologiques {
     border: 2px solid black;
     width: 100%;
@@ -70,34 +70,53 @@
     color: black;
     font-size:10px
 }
+md-toolbar.map-toolbar {
+    min-height: 40px;
+}
+
 .map-toolbar span {
     font-size: 14px;
 }
 
+.map-toolbar .md-toolbar-tools {
+    max-height: 40px;
+}
+
 .map-toolbar .zoomScale {
-    width: 130px;
+    width: 135px;
     cursor: pointer;
+}
+.site-localisation .coordinates {
+    font-size: 12px;
 }
 .site-archeo-list {
     padding: 0;
 }
 
-.site-archeo-list .site-archeo {
+.site-archeo-list .commune {
     font-weight: bold;
     font-size: 12px;
 }
 
-.site-archeo-list .operation-archeo .md-list-item-text {
+.site-archeo-list .commune .siteCount {
+    margin-left: 10px;
+}
+
+.site-archeo-list .site-archeo .md-list-item-text {
     position: relative;
     z-index: 1;
 }
 
-.site-archeo-list .operation-archeo h3 {
-    font-weight: bold;
-}
-.site-localisation .coordinates {
+.site-archeo-list  md-list-item .md-no-style.md-button {
     font-size: 12px;
+    line-height: inherit;
 }
+
+.site-archeo-list .site-archeo .reference-site {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
 .site-ops-map .map {
     height: 400px;
 }
