@@ -71,6 +71,13 @@ var snm;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(AppConstants, "SARCOS_MODULE_NAME", {
+            get: function () {
+                return this.CORE_MODULE_NAME + ".sarcos";
+            },
+            enumerable: true,
+            configurable: true
+        });
         return AppConstants;
     }());
     snm.AppConstants = AppConstants;
@@ -1274,12 +1281,88 @@ var snm;
         })(components = ops.components || (ops.components = {}));
     })(ops = snm.ops || (snm.ops = {}));
 })(snm || (snm = {}));
+/// <reference path="../../../../typings/angular/angular.d.ts" />
+/// <reference path="../../../../typings/angular/angular-route.d.ts" />
+/// <reference path="../../../../typings/angular-material/angular-material.d.ts" />
+/// <reference path="../../definitions-summary.ts" />
+/// <reference path="../../../services/user-settings.ts" />
+var snm;
+(function (snm) {
+    var sarcos;
+    (function (sarcos) {
+        var components;
+        (function (components) {
+            // controller
+            var Controller = (function () {
+                function Controller($scope, $log, $http, $mdToast, userSettings) {
+                    this.$scope = $scope;
+                    this.$log = $log;
+                    this.$http = $http;
+                    this.$mdToast = $mdToast;
+                    this.userSettings = userSettings;
+                }
+                Object.defineProperty(Controller.prototype, "siteId", {
+                    get: function () {
+                        return this._siteId;
+                    },
+                    set: function (value) {
+                        this._siteId = value;
+                        if (typeof value === "number") {
+                            this._getSitesData(value);
+                        }
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                Object.defineProperty(Controller.prototype, "illustrations", {
+                    get: function () {
+                        return this._illustrations;
+                    },
+                    set: function (value) {
+                        this._illustrations = value;
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                Controller.prototype._getSitesData = function (siteId) {
+                    var _this = this;
+                    this.$http.get("api/sarcos/" + siteId + "/panneaux/illus/summary")
+                        .then(function (result) {
+                        result.data.forEach(function (ips) {
+                            if (ips.chemin) {
+                                ips.label = ips.chemin;
+                                ips.chemin = _this.userSettings.illustrationStorageRootUrl +
+                                    "/sarcos/" + siteId + "/" + ips.chemin;
+                            }
+                        });
+                        _this.illustrations = result.data;
+                    });
+                };
+                Controller.$inject = ["$scope", "$log", "$http", "$mdToast", "userSettings"];
+                return Controller;
+            }());
+            // component
+            angular.module("snm.sarcos.components.panneauxSiteList", [
+                "ngRoute",
+                "ngMaterial"])
+                .component("panneauxSiteList", {
+                templateUrl: '/app/sarcos/components/panneaux-site-list/panneaux-site-list.component.html',
+                controller: Controller,
+                controllerAs: "vm",
+                bindings: {
+                    siteId: "<"
+                }
+            });
+        })(components = sarcos.components || (sarcos.components = {}));
+    })(sarcos = snm.sarcos || (snm.sarcos = {}));
+})(snm || (snm = {}));
 /// <reference path="../../../typings/angular/angular.d.ts" />
 /// <reference path="../../../typings/angular/angular-route.d.ts" />
 /// <reference path="../../common/event-block.ts" />
 /// <reference path="../../ops/definitions-details.ts" />
 /// <reference path="../../ops/components/site-localisation/site-localisation.component.ts" />
 /// <reference path="../../ops/components/site-ops-map/site-ops-map.component.ts" />
+/// <reference path="../../sarcos/components/panneaux-site-list/panneaux-site-list.component.ts" />
 var snm;
 (function (snm) {
     var pages;
@@ -2523,6 +2606,18 @@ var snm;
             }]);
     })(pers = snm.pers || (snm.pers = {}));
 })(snm || (snm = {}));
+/// <reference path="../../typings/angular/angular.d.ts" />
+/// <reference path="../app-constants.ts" />
+/// <reference path="./components/panneaux-site-list/panneaux-site-list.component.ts" />
+var snm;
+(function (snm) {
+    var sarcos;
+    (function (sarcos) {
+        angular.module(snm.AppConstants.SARCOS_MODULE_NAME, [
+            "snm.sarcos.components.panneauxSiteList"
+        ]);
+    })(sarcos = snm.sarcos || (snm.sarcos = {}));
+})(snm || (snm = {}));
 /// <reference path="../typings/angular/angular.d.ts" />
 /// <reference path="../typings/angular/angular-route.d.ts" />
 /// <reference path="../typings/angular-material/angular-material.d.ts" />
@@ -2533,6 +2628,7 @@ var snm;
 /// <reference path="ops/ops.ts" />
 /// <reference path="chrono/chrono.ts" />
 /// <reference path="pers/pers.ts" />
+/// <reference path="sarcos/sarcos.ts" />
 /// <reference path="services/user-settings.ts" />
 var Bootstrap = (function () {
     function Bootstrap() {
@@ -2546,6 +2642,7 @@ var Bootstrap = (function () {
             snm.AppConstants.CHRONO_MODULE_NAME,
             snm.AppConstants.OPS_MODULE_NAME,
             snm.AppConstants.PERS_MODULE_NAME,
+            snm.AppConstants.SARCOS_MODULE_NAME,
             "ngRoute",
             "ngMaterial",
             "ngMessages"
