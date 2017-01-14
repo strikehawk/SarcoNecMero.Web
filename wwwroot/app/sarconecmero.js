@@ -701,13 +701,13 @@ var snm;
                     enumerable: true,
                     configurable: true
                 });
-                Controller.prototype.flyToHome = function () {
-                    var _this = this;
-                    var home = this._map.convertToProj(this.userSettings.homeLocation);
-                    this._map.flyTo(home, function () {
-                        _this.$scope.$apply();
-                    });
-                };
+                Object.defineProperty(Controller.prototype, "showHome", {
+                    get: function () {
+                        return !!this.goToHome;
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
                 Controller.prototype.toggleScale = function () {
                     this._showScale = !this._showScale;
                 };
@@ -753,7 +753,7 @@ var snm;
                 controllerAs: "vm",
                 bindings: {
                     map: "<",
-                    showHome: "="
+                    goToHome: "&?"
                 }
             });
         })(components = maps.components || (maps.components = {}));
@@ -1016,6 +1016,13 @@ var snm;
                 var _this = this;
                 setTimeout(function () { return _this._setupMap(); });
             };
+            Controller.prototype.flyToHome = function () {
+                var _this = this;
+                var home = this._map.convertToProj(this.userSettings.homeLocation);
+                this._map.flyTo(home, function () {
+                    _this.$scope.$apply();
+                });
+            };
             Controller.prototype.onSelectSite = function (siteId) {
                 this.$location.path("/sites/" + siteId);
             };
@@ -1034,6 +1041,8 @@ var snm;
                     source: this._siteSource
                 });
                 this._map.addLayer(siteLayer);
+                //Try to display sites, if they're already present
+                this._displaySitesOnMap();
             };
             Controller.prototype._getSitesData = function () {
                 var _this = this;
@@ -1076,6 +1085,9 @@ var snm;
                 });
             };
             Controller.prototype._addSiteToMap = function (site) {
+                if (!this._map) {
+                    return;
+                }
                 if (!this._siteSource || !site) {
                     return;
                 }
@@ -1090,6 +1102,20 @@ var snm;
                 });
                 siteFeature.setStyle(this.iconService.getSiteSummaryStyle(site));
                 this._siteSource.addFeature(siteFeature);
+            };
+            Controller.prototype._displaySitesOnMap = function () {
+                var _this = this;
+                if (!this._map || !this.communes) {
+                    return;
+                }
+                this.communes.forEach(function (c) {
+                    if (c.sites) {
+                        c.sites.forEach(function (s) {
+                            //Try to add site to map
+                            _this._addSiteToMap(s);
+                        });
+                    }
+                });
             };
             Controller.$inject = ["$scope", "$log", "$http", "$location", "userSettings", "iconService"];
             return Controller;
@@ -1123,9 +1149,30 @@ var snm;
                     this.$log = $log;
                     this.userSettings = userSettings;
                 }
-                Controller.prototype.centerOnLocation = function () {
-                    this.eventBlock.dispatch("center", null, [this.site.x, this.site.y]);
-                };
+                Object.defineProperty(Controller.prototype, "localisation", {
+                    get: function () {
+                        if (!this.site || !this.site.commune) {
+                            return "Non renseigné";
+                        }
+                        else {
+                            return this.site.commune + "\n                        " + (typeof this.site.departement === "number" ? " (" + this.site.departement + ")" : "");
+                        }
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                Object.defineProperty(Controller.prototype, "coordinates", {
+                    get: function () {
+                        if (!this.site || typeof this.site.x !== "number" || typeof this.site.y !== "number") {
+                            return "Non renseigné";
+                        }
+                        else {
+                            return "X: " + this.site.x.toLocaleString("fr-FR", { minimumFractionDigits: 0 }) + " \n                        Y: " + this.site.y.toLocaleString("fr-FR", { minimumFractionDigits: 0 });
+                        }
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
                 Controller.prototype.pickLocation = function () {
                     this.eventBlock.dispatch("pickLocation");
                 };
@@ -1197,6 +1244,16 @@ var snm;
                         this.eventBlock.on("refreshLocation", this._onRefreshLocation.bind(this));
                     }
                 };
+                Controller.prototype.centerOnSite = function () {
+                    if (!this._map || !this.site) {
+                        return;
+                    }
+                    if (typeof this.site.x !== "number" || typeof this.site.y !== "number") {
+                        //Site has no location defined
+                        return;
+                    }
+                    this._map.flyTo(this._map.convertToProj([this.site.x, this.site.y]));
+                };
                 Controller.prototype._setupMap = function () {
                     this._map = new snm.maps.components.Map("map", this.userSettings);
                     this._siteSource = new ol.source.Vector();
@@ -1209,6 +1266,9 @@ var snm;
                     this._centerOnSite();
                 };
                 Controller.prototype._addSiteToMap = function () {
+                    if (!this._map) {
+                        return;
+                    }
                     if (!this._siteSource || !this._site) {
                         return;
                     }
@@ -1226,17 +1286,26 @@ var snm;
                     }
                 };
                 Controller.prototype._centerOnSite = function () {
+                    if (!this._map) {
+                        return;
+                    }
                     if (this._site && typeof this._site.x === "number" && typeof this._site.y === "number") {
                         this._map.center = this._map.convertToProj([this._site.x, this._site.y]);
                     }
                 };
                 Controller.prototype._onCenter = function (oldValue, newValue) {
+                    if (!this._map) {
+                        return;
+                    }
                     if (newValue) {
                         this._map.flyTo(this._map.convertToProj(newValue));
                     }
                 };
                 Controller.prototype._onPickLocation = function (oldValue, newValue) {
                     var _this = this;
+                    if (!this._map) {
+                        return;
+                    }
                     //Show toast
                     this.$mdToast.show({
                         hideDelay: 0,

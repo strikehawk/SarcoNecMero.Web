@@ -70,8 +70,21 @@ md-nav-bar .md-button._md-nav-button.md-unselected {
     color: black;
     font-size:10px
 }
-.site-localisation .coordinates {
-    font-size: 12px;
+md-toolbar.map-toolbar {
+    min-height: 40px;
+}
+
+.map-toolbar span {
+    font-size: 14px;
+}
+
+.map-toolbar .md-toolbar-tools {
+    max-height: 40px;
+}
+
+.map-toolbar .zoomScale {
+    width: 135px;
+    cursor: pointer;
 }
 .site-archeo-list {
     padding: 0;
@@ -101,26 +114,13 @@ md-nav-bar .md-button._md-nav-button.md-unselected {
     margin-right: 10px;
 }
 
+.site-localisation .coordinates {
+    font-size: 12px;
+}
 .site-ops-map .map {
     height: 400px;
 }
 
-md-toolbar.map-toolbar {
-    min-height: 40px;
-}
-
-.map-toolbar span {
-    font-size: 14px;
-}
-
-.map-toolbar .md-toolbar-tools {
-    max-height: 40px;
-}
-
-.map-toolbar .zoomScale {
-    width: 135px;
-    cursor: pointer;
-}
 .panneaux-site-list {
     display: flex;
     flex-direction: row;
