@@ -863,6 +863,7 @@ var snm;
 /// <reference path="../chrono/definitions.ts" />
 /// <reference path="../pers/definitions.ts" />
 /// <reference path="./definitions.ts" />
+/// <reference path="../pers/definitions-summary.ts" />
 /// <reference path="./definitions.ts" />
 var snm;
 (function (snm) {
@@ -1454,9 +1455,37 @@ var snm;
     })(ops = snm.ops || (snm.ops = {}));
 })(snm || (snm = {}));
 /// <reference path="../../../../typings/angular/angular.d.ts" />
+/// <reference path="../../definitions.ts" />
+var snm;
+(function (snm) {
+    var pers;
+    (function (pers) {
+        var components;
+        (function (components) {
+            var PersonneController = (function () {
+                function PersonneController($scope) {
+                    this.$scope = $scope;
+                }
+                PersonneController.$inject = ["$scope"];
+                return PersonneController;
+            }());
+            // component
+            angular.module("snm.pers.components.personne", []).component("personne", {
+                templateUrl: '/app/pers/components/personne/personne.component.html',
+                controller: PersonneController,
+                controllerAs: "vm",
+                bindings: {
+                    personne: "<"
+                }
+            });
+        })(components = pers.components || (pers.components = {}));
+    })(pers = snm.pers || (snm.pers = {}));
+})(snm || (snm = {}));
+/// <reference path="../../../../typings/angular/angular.d.ts" />
 /// <reference path="../../../../typings/angular/angular-route.d.ts" />
 /// <reference path="../../../common/event-block.ts" />
 /// <reference path="../../definitions-summary.ts" />
+/// <reference path="../../../pers/components/personne/personne.component.ts" />
 var snm;
 (function (snm) {
     var ops;
@@ -1485,7 +1514,10 @@ var snm;
                 return Controller;
             }());
             // component
-            angular.module("snm.ops.components.siteOperations", ["ngRoute"])
+            angular.module("snm.ops.components.siteOperations", [
+                "ngRoute",
+                "snm.pers.components.personne"
+            ])
                 .component("siteOperations", {
                 templateUrl: '/app/ops/components/site-operations/site-operations.component.html',
                 controller: Controller,
@@ -2475,43 +2507,6 @@ var snm;
             }(snm.services.dal.EntitySet));
             dal.OrganismeSet = OrganismeSet;
         })(dal = pers.dal || (pers.dal = {}));
-    })(pers = snm.pers || (snm.pers = {}));
-})(snm || (snm = {}));
-/// <reference path="../../../../typings/angular/angular.d.ts" />
-/// <reference path="../../definitions.ts" />
-var snm;
-(function (snm) {
-    var pers;
-    (function (pers) {
-        var components;
-        (function (components) {
-            var PersonneController = (function () {
-                function PersonneController($scope) {
-                    this.$scope = $scope;
-                }
-                Object.defineProperty(PersonneController.prototype, "personne", {
-                    get: function () {
-                        return this._personne;
-                    },
-                    set: function (value) {
-                        this._personne = value;
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
-                PersonneController.$inject = ["$scope"];
-                return PersonneController;
-            }());
-            // component
-            angular.module("snm.pers.components.personne", []).component("personne", {
-                templateUrl: '/app/pers/components/personne/personne.component.html',
-                controller: PersonneController,
-                controllerAs: "vm",
-                bindings: {
-                    personne: "<"
-                }
-            });
-        })(components = pers.components || (pers.components = {}));
     })(pers = snm.pers || (snm.pers = {}));
 })(snm || (snm = {}));
 /// <reference path="../../typings/angular/angular.d.ts" />

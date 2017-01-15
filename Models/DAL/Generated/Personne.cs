@@ -9,7 +9,6 @@ namespace SarcoNecMero.Web.Models.DAL
         {
             Auteur = new HashSet<Auteur>();
             AuteurPlan = new HashSet<AuteurPlan>();
-            OperationArcheo = new HashSet<OperationArcheo>();
         }
 
         public int Id { get; set; }
@@ -27,7 +26,6 @@ namespace SarcoNecMero.Web.Models.DAL
 
         public virtual ICollection<Auteur> Auteur { get; set; }
         public virtual ICollection<AuteurPlan> AuteurPlan { get; set; }
-        public virtual ICollection<OperationArcheo> OperationArcheo { get; set; }
         public virtual Organisme Organisme { get; set; }
     }
 }

@@ -923,7 +923,7 @@ namespace SarcoNecMero.Web.Models.DAL
                     .HasConstraintName("FK_OperationArcheo_Plan");
 
                 entity.HasOne(d => d.Responsable)
-                    .WithMany(p => p.OperationArcheo)
+                    .WithMany()
                     .HasForeignKey(d => d.ResponsableId)
                     .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("FK_OperationArcheo_Personne");
