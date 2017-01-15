@@ -17,10 +17,16 @@ namespace SarcoNecMero.Web.Controllers
             repo = unitOfWork.GetRepository<OperationArcheo>();
         }
 
-        [HttpGet()]
-        public IEnumerable<dynamic> Get()
+        [HttpGet("site/{siteId}")]
+        public IEnumerable<dynamic> GetBySite(int siteId)
         {
-            return repo.Get().Include(o => o.Identifications).Select(GetOperationVM);
+            return repo.Get()
+                .Where(o => o.SiteId == siteId)
+                .Include(o => o.Commune)
+                .Include(o => o.Identifications)
+                .Include(o => o.Responsable)
+                .Include(o => o.Organisme)
+                .Select(GetSummaryOperation);
         }
 
         [HttpGet("{id}")]
@@ -29,7 +35,7 @@ namespace SarcoNecMero.Web.Controllers
             return repo.GetByID(id);
         }
 
-        private dynamic GetOperationVM(OperationArcheo op)
+        private dynamic GetSummaryOperation(OperationArcheo op)
         {
             if (op == null) return null;
 
@@ -38,19 +44,20 @@ namespace SarcoNecMero.Web.Controllers
                 Id = op.Id,
                 SiteId = op.SiteId,
                 CodeCommune = op.CodeCommune,
+                Commune = op.Commune != null ? op.Commune.Nom : string.Empty,
+                Departement = op.Commune != null ? (int?)op.Commune.Departement : null,
                 X = op.X,
                 Y = op.Y,
                 Localisation = op.Localisation,
                 ResponsableId = op.ResponsableId,
-                OrganismeId = op.OrganismeId,
+                Organisme = op.Organisme != null ? op.Organisme.Nom : string.Empty,
                 DebutTravaux = op.DebutTravaux,
                 FinTravaux = op.FinTravaux,
-                DebutOccupationId = op.DebutOccupationId,
-                FinOccupationId = op.FinOccupationId,
                 PlanId = op.PlanId,
                 Identifications = op.Identifications.Select(o => new {
                     ReferentielId = o.ReferentielId,
-                    Reference = o.Reference
+                    Reference = o.Reference,
+                    Nom = o.Nom
                 })
             };
         }

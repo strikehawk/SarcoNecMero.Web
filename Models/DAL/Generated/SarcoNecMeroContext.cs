@@ -912,16 +912,6 @@ namespace SarcoNecMero.Web.Models.DAL
                     .HasForeignKey(d => d.CodeCommune)
                     .HasConstraintName("FK_OperationArcheo_Commune");
 
-                entity.HasOne(d => d.DebutOccupation)
-                    .WithMany(p => p.OperationArcheoDebutOccupation)
-                    .HasForeignKey(d => d.DebutOccupationId)
-                    .HasConstraintName("FK_OperationArcheo_PhaseChronologique_Debut");
-
-                entity.HasOne(d => d.FinOccupation)
-                    .WithMany(p => p.OperationArcheoFinOccupation)
-                    .HasForeignKey(d => d.FinOccupationId)
-                    .HasConstraintName("FK_OperationArcheo_PhaseChronologique_Fin");
-
                 entity.HasOne(d => d.Organisme)
                     .WithMany(p => p.OperationArcheo)
                     .HasForeignKey(d => d.OrganismeId)
@@ -1336,16 +1326,6 @@ namespace SarcoNecMero.Web.Models.DAL
                     .WithMany(p => p.SiteArcheo)
                     .HasForeignKey(d => d.CodeCommune)
                     .HasConstraintName("FK_SiteArcheo_Commune");
-
-                entity.HasOne(d => d.DebutOccupation)
-                    .WithMany(p => p.SiteArcheoDebutOccupation)
-                    .HasForeignKey(d => d.DebutOccupationId)
-                    .HasConstraintName("FK_SiteArcheo_PhaseChronologique_Debut");
-
-                entity.HasOne(d => d.FinOccupation)
-                    .WithMany(p => p.SiteArcheoFinOccupation)
-                    .HasForeignKey(d => d.FinOccupationId)
-                    .HasConstraintName("FK_SiteArcheo_PhaseChronologique_Fin");
 
                 entity.HasOne(d => d.Plan)
                     .WithMany(p => p.SiteArcheo)

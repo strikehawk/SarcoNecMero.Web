@@ -17,8 +17,6 @@ namespace SarcoNecMero.Web.Models.DAL
         public double? X { get; set; }
         public double? Y { get; set; }
         public string Localisation { get; set; }
-        public byte? DebutOccupationId { get; set; }
-        public byte? FinOccupationId { get; set; }
         public int? PlanId { get; set; }
         public Guid UniqueTag { get; set; }
         public DateTime Created { get; set; }
@@ -30,8 +28,6 @@ namespace SarcoNecMero.Web.Models.DAL
         public virtual ICollection<OperationArcheo> Operations { get; set; }
         public virtual ICollection<Sarcophage> Sarcophages { get; set; }
         public virtual Commune Commune { get; set; }
-        public virtual PhaseChronologique DebutOccupation { get; set; }
-        public virtual PhaseChronologique FinOccupation { get; set; }
         public virtual Plan Plan { get; set; }
     }
 }

@@ -40,10 +40,6 @@ namespace SarcoNecMero.Web.Controllers
         [StringLength(250, ErrorMessage = "Le nom du site peut contenir 250 caractères maximum.")]
         public string Localisation { get; set; }
 
-        public int? DebutOccupationId { get; set; }
-
-        public int? FinOccupationId { get; set; }
-
         public int? PlanId { get; set; }
 
         public IReferenceSite[] Identifications { get; set; }
@@ -70,9 +66,9 @@ namespace SarcoNecMero.Web.Controllers
                 .OrderBy(o => o.Commune.Departement).ThenBy(o => o.Commune.Nom)
                 .ThenBy(o => o.Localisation)
                 .Include(o => o.Identifications)
-                .Include(o => o.Operations)
-                .Include(o => o.Operations).ThenInclude(op => op.Commune)
-                .Include(o => o.Operations).ThenInclude(op => op.Identifications)
+                //.Include(o => o.Operations)
+                //.Include(o => o.Operations).ThenInclude(op => op.Commune)
+                //.Include(o => o.Operations).ThenInclude(op => op.Identifications)
                 .Select(GetSummarySite);
         }
 
@@ -85,9 +81,6 @@ namespace SarcoNecMero.Web.Controllers
                 .OrderBy(o => o.Commune.Departement).ThenBy(o => o.Commune.Nom)
                 .ThenBy(o => o.Localisation)
                 .Include(o => o.Identifications)
-                .Include(o => o.Operations)
-                .Include(o => o.Operations).ThenInclude(op => op.Commune)
-                .Include(o => o.Operations).ThenInclude(op => op.Identifications)
                 .Select(GetSummarySite)
                 .FirstOrDefault();
         }
@@ -138,44 +131,12 @@ namespace SarcoNecMero.Web.Controllers
                 X = site.X,
                 Y = site.Y,
                 Localisation = site.Localisation,
-                DebutOccupationId = site.DebutOccupationId,
-                FinOccupationId = site.FinOccupationId,
                 PlanId = site.PlanId,
-                Operations = site.Operations.Select(GetOperation),
                 Identifications = site.Identifications.Select(o => new
                 {
                     ReferentielId = o.ReferentielId,
                     Reference = o.Reference,
                     Nom = o.Nom
-                })
-            };
-        }
-
-        private dynamic GetOperation(OperationArcheo op)
-        {
-            if (op == null) return null;
-
-            return new
-            {
-                Id = op.Id,
-                SiteId = op.SiteId,
-                CodeCommune = op.CodeCommune,
-                Commune = op.Commune != null ? op.Commune.Nom : string.Empty,
-                Departement = op.Commune != null ? (int?)op.Commune.Departement : null,
-                X = op.X,
-                Y = op.Y,
-                Localisation = op.Localisation,
-                ResponsableId = op.ResponsableId,
-                OrganismeId = op.OrganismeId,
-                DebutTravaux = op.DebutTravaux,
-                FinTravaux = op.FinTravaux,
-                DebutOccupationId = op.DebutOccupationId,
-                FinOccupationId = op.FinOccupationId,
-                PlanId = op.PlanId,
-                Identifications = op.Identifications.Select(o => new
-                {
-                    ReferentielId = o.ReferentielId,
-                    Reference = o.Reference
                 })
             };
         }

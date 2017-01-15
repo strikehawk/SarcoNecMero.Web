@@ -8,6 +8,7 @@ namespace SarcoNecMero.Web.Models.DAL
         public int OperationId { get; set; }
         public byte ReferentielId { get; set; }
         public string Reference { get; set; }
+        public string Nom { get; set; }
         public Guid UniqueTag { get; set; }
         public DateTime Created { get; set; }
         public string CreatedBy { get; set; }
