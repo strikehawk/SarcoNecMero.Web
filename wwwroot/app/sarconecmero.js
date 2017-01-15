@@ -508,6 +508,7 @@ var snm;
                     this._PROJ = "EPSG:3857";
                     this._DATA_PROJ = "EPSG:2154";
                     Map.loadProjections();
+                    this._baseLayers = this._createBaseLayers();
                     this._map = this._createMap(elementId);
                     this._eventBlock = new adnw.common.EventBlock();
                     this._viewManager = new snm.maps.components.ViewManager(this, this._map, this._eventBlock);
@@ -515,6 +516,34 @@ var snm;
                 Map.loadProjections = function () {
                     proj4.defs("EPSG:2154", "+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
                 };
+                Object.defineProperty(Map.prototype, "targetElement", {
+                    get: function () {
+                        return this._map.getTargetElement();
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                Object.defineProperty(Map.prototype, "baseLayers", {
+                    get: function () {
+                        return this._baseLayers;
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                Object.defineProperty(Map.prototype, "baseLayer", {
+                    get: function () {
+                        return this._baseLayer;
+                    },
+                    set: function (value) {
+                        var _this = this;
+                        this._baseLayer = value;
+                        this._baseLayers.forEach(function (layerDef) {
+                            layerDef.layer.setVisible(layerDef === _this._baseLayer);
+                        });
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
                 Object.defineProperty(Map.prototype, "center", {
                     get: function () {
                         return this._viewManager.center;
@@ -615,6 +644,27 @@ var snm;
                     }
                     this._eventBlock.un(event, callback);
                 };
+                Map.prototype._createBaseLayers = function () {
+                    var result = [];
+                    var def;
+                    def = {
+                        label: "Open Street Map",
+                        imgUrl: "assets/img/osm.png",
+                        layer: new ol.layer.Tile({
+                            source: new ol.source.OSM()
+                        })
+                    };
+                    result.push(def);
+                    def = {
+                        label: "Carte de Cassini",
+                        imgUrl: "assets/img/cassini.png",
+                        layer: new ol.layer.Tile({
+                            source: this._getCassiniWmtsSource()
+                        })
+                    };
+                    result.push(def);
+                    return result;
+                };
                 Map.prototype._createMap = function (elementId) {
                     var center;
                     //Check if a current location is defined
@@ -640,11 +690,7 @@ var snm;
                         center: center ? center : [0, 0],
                         zoom: typeof zoom === "number" ? zoom : 1
                     });
-                    var layers = [
-                        new ol.layer.Tile({
-                            source: new ol.source.OSM()
-                        })
-                    ];
+                    var layers = this._baseLayers.map(function (def) { return def.layer; });
                     var map = new ol.Map({
                         target: elementId,
                         loadTilesWhileAnimating: true,
@@ -655,7 +701,17 @@ var snm;
                     setTimeout(function () {
                         map.updateSize();
                     });
+                    this.baseLayer = this._baseLayers[0];
                     return map;
+                };
+                Map.prototype._getCassiniWmtsSource = function () {
+                    var source = new ol.source.XYZ({
+                        url: "http://georeferencer-{0-1}.tileserver.com/a0b83ea87a4e6c2f35bb30d105ac787271a1f7a8/map/2Uu3fCXb8HK9fjs2vADCAZ/201601190350-6lA3T0/polynomial/{z}/{x}/{y}.png",
+                        minZoom: 0,
+                        maxZoom: 13,
+                        tilePixelRatio: 1
+                    });
+                    return source;
                 };
                 return Map;
             }());
@@ -672,9 +728,37 @@ var snm;
     (function (maps) {
         var components;
         (function (components) {
-            var Controller = (function () {
-                function Controller($scope, userSettings) {
+            var LayerPickerController = (function () {
+                function LayerPickerController($scope, userSettings) {
                     this.$scope = $scope;
+                    this.userSettings = userSettings;
+                }
+                LayerPickerController.prototype.useLayer = function (def) {
+                    this.map.baseLayer = def;
+                    this.mdPanelRef.hide();
+                };
+                LayerPickerController.$inject = ["$scope", "userSettings"];
+                return LayerPickerController;
+            }());
+            components.LayerPickerController = LayerPickerController;
+        })(components = maps.components || (maps.components = {}));
+    })(maps = snm.maps || (snm.maps = {}));
+})(snm || (snm = {}));
+/// <reference path="../../../../typings/angular/angular.d.ts" />
+/// <reference path="../../../../typings/angular-material/angular-material.d.ts" />
+/// <reference path="../../../services/user-settings.ts" />
+/// <reference path="../map/map.ts" />
+/// <reference path="../layer-picker/layer-picker.component.ts" />
+var snm;
+(function (snm) {
+    var maps;
+    (function (maps) {
+        var components;
+        (function (components) {
+            var Controller = (function () {
+                function Controller($scope, $mdPanel, userSettings) {
+                    this.$scope = $scope;
+                    this.$mdPanel = $mdPanel;
                     this.userSettings = userSettings;
                     this._showScale = true;
                 }
@@ -688,19 +772,6 @@ var snm;
                     enumerable: true,
                     configurable: true
                 });
-                Object.defineProperty(Controller.prototype, "map", {
-                    get: function () {
-                        return this._map;
-                    },
-                    set: function (value) {
-                        this._map = value;
-                        if (value) {
-                            this._registerToMapEvents(value);
-                        }
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
                 Object.defineProperty(Controller.prototype, "showHome", {
                     get: function () {
                         return !!this.goToHome;
@@ -708,8 +779,34 @@ var snm;
                     enumerable: true,
                     configurable: true
                 });
+                Controller.prototype.$onInit = function () {
+                    this._registerToMapEvents(this.map);
+                };
                 Controller.prototype.toggleScale = function () {
                     this._showScale = !this._showScale;
+                };
+                Controller.prototype.openLayerPicker = function () {
+                    var panelPosition = this.$mdPanel.newPanelPosition()
+                        .relativeTo("#layer-picker")
+                        .addPanelPosition(this.$mdPanel.xPosition.ALIGN_START, this.$mdPanel.yPosition.ABOVE);
+                    var config = {
+                        attachTo: angular.element(document.body),
+                        templateUrl: "/app/maps/components/layer-picker/layer-picker.component.html",
+                        controller: snm.maps.components.LayerPickerController,
+                        controllerAs: "vm",
+                        position: panelPosition,
+                        clickOutsideToClose: true,
+                        escapeToClose: true,
+                        focusOnOpen: true,
+                        locals: {
+                            map: this.map
+                        }
+                    };
+                    var panelRef;
+                    this.$mdPanel.open(config)
+                        .then(function (result) {
+                        panelRef = result;
+                    });
                 };
                 Controller.prototype._registerToMapEvents = function (map) {
                     var _this = this;
@@ -741,7 +838,7 @@ var snm;
                     }
                     this.$scope.$applyAsync();
                 };
-                Controller.$inject = ["$scope", "userSettings"];
+                Controller.$inject = ["$scope", "$mdPanel", "userSettings"];
                 return Controller;
             }());
             // component
@@ -1235,24 +1332,30 @@ var snm;
                     enumerable: true,
                     configurable: true
                 });
+                Controller.prototype.$onInit = function () {
+                    this.eventBlock.on("center", this._onCenter.bind(this));
+                    this.eventBlock.on("pickLocation", this._onPickLocation.bind(this));
+                    this.eventBlock.on("refreshLocation", this._onRefreshLocation.bind(this));
+                };
                 Controller.prototype.$postLink = function () {
                     var _this = this;
-                    setTimeout(function () { return _this._setupMap(); });
-                    if (this.eventBlock) {
-                        this.eventBlock.on("center", this._onCenter.bind(this));
-                        this.eventBlock.on("pickLocation", this._onPickLocation.bind(this));
-                        this.eventBlock.on("refreshLocation", this._onRefreshLocation.bind(this));
-                    }
+                    setTimeout(function () {
+                        _this._setupMap();
+                        if (_this._site) {
+                            _this._addSiteToMap();
+                            _this._centerOnSite();
+                        }
+                    });
                 };
                 Controller.prototype.centerOnSite = function () {
-                    if (!this._map || !this.site) {
+                    if (!this._map || !this._site) {
                         return;
                     }
-                    if (typeof this.site.x !== "number" || typeof this.site.y !== "number") {
+                    if (typeof this._site.x !== "number" || typeof this._site.y !== "number") {
                         //Site has no location defined
                         return;
                     }
-                    this._map.flyTo(this._map.convertToProj([this.site.x, this.site.y]));
+                    this._map.flyTo(this._map.convertToProj([this._site.x, this._site.y]));
                 };
                 Controller.prototype._setupMap = function () {
                     this._map = new snm.maps.components.Map("map", this.userSettings);
@@ -1352,6 +1455,52 @@ var snm;
 })(snm || (snm = {}));
 /// <reference path="../../../../typings/angular/angular.d.ts" />
 /// <reference path="../../../../typings/angular/angular-route.d.ts" />
+/// <reference path="../../../common/event-block.ts" />
+/// <reference path="../../definitions-summary.ts" />
+var snm;
+(function (snm) {
+    var ops;
+    (function (ops) {
+        var components;
+        (function (components) {
+            // controller
+            var Controller = (function () {
+                function Controller($scope, $http, $log, userSettings) {
+                    this.$scope = $scope;
+                    this.$http = $http;
+                    this.$log = $log;
+                    this.userSettings = userSettings;
+                }
+                Controller.prototype.$onInit = function () {
+                    var _this = this;
+                    //Get operation list
+                    this.$http.get("api/ops/operations/site/" + this.siteId)
+                        .then(function (result) {
+                        _this.operations = result.data;
+                    });
+                };
+                Controller.prototype.goToOperation = function (id) {
+                };
+                Controller.$inject = ["$scope", "$http", "$log", "userSettings"];
+                return Controller;
+            }());
+            // component
+            angular.module("snm.ops.components.siteOperations", ["ngRoute"])
+                .component("siteOperations", {
+                templateUrl: '/app/ops/components/site-operations/site-operations.component.html',
+                controller: Controller,
+                controllerAs: "vm",
+                bindings: {
+                    siteId: "<",
+                    allowEdition: "=",
+                    eventBlock: "<"
+                }
+            });
+        })(components = ops.components || (ops.components = {}));
+    })(ops = snm.ops || (snm.ops = {}));
+})(snm || (snm = {}));
+/// <reference path="../../../../typings/angular/angular.d.ts" />
+/// <reference path="../../../../typings/angular/angular-route.d.ts" />
 /// <reference path="../../../../typings/angular-material/angular-material.d.ts" />
 /// <reference path="../../definitions-summary.ts" />
 /// <reference path="../../../services/user-settings.ts" />
@@ -1370,19 +1519,6 @@ var snm;
                     this.$mdToast = $mdToast;
                     this.userSettings = userSettings;
                 }
-                Object.defineProperty(Controller.prototype, "siteId", {
-                    get: function () {
-                        return this._siteId;
-                    },
-                    set: function (value) {
-                        this._siteId = value;
-                        if (typeof value === "number") {
-                            this._getSitesData(value);
-                        }
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
                 Object.defineProperty(Controller.prototype, "illustrations", {
                     get: function () {
                         return this._illustrations;
@@ -1393,6 +1529,10 @@ var snm;
                     enumerable: true,
                     configurable: true
                 });
+                Controller.prototype.$onInit = function () {
+                    this._getSitesData(this.siteId);
+                };
+                ;
                 Controller.prototype._getSitesData = function (siteId) {
                     var _this = this;
                     this.$http.get("api/sarcos/" + siteId + "/panneaux/illus/summary")
@@ -1431,6 +1571,7 @@ var snm;
 /// <reference path="../../ops/definitions-details.ts" />
 /// <reference path="../../ops/components/site-localisation/site-localisation.component.ts" />
 /// <reference path="../../ops/components/site-ops-map/site-ops-map.component.ts" />
+/// <reference path="../../ops/components/site-operations/site-operations.component.ts" />
 /// <reference path="../../sarcos/components/panneaux-site-list/panneaux-site-list.component.ts" />
 var snm;
 (function (snm) {
@@ -1439,19 +1580,12 @@ var snm;
         // controller
         var Controller = (function () {
             function Controller($scope, $log, $http, $location, userSettings, $routeParams) {
-                var _this = this;
                 this.$scope = $scope;
                 this.$log = $log;
                 this.$http = $http;
                 this.$location = $location;
                 this.userSettings = userSettings;
                 this.$routeParams = $routeParams;
-                var id = $routeParams.siteId;
-                $http.get("api/ops/sites/" + id)
-                    .then(function (result) {
-                    _this.site = result.data;
-                });
-                this._eventBlock = new adnw.common.EventBlock();
             }
             Object.defineProperty(Controller.prototype, "eventBlock", {
                 get: function () {
@@ -1460,6 +1594,15 @@ var snm;
                 enumerable: true,
                 configurable: true
             });
+            Controller.prototype.$onInit = function () {
+                var _this = this;
+                this.siteId = this.$routeParams.siteId;
+                this.$http.get("api/ops/sites/" + this.siteId)
+                    .then(function (result) {
+                    _this.site = result.data;
+                });
+                this._eventBlock = new adnw.common.EventBlock();
+            };
             Controller.prototype.edit = function () {
                 this.$location.path("/sites/edit/" + this.site.id);
             };
@@ -1738,6 +1881,24 @@ var snm;
         })(components = ops.components || (ops.components = {}));
     })(ops = snm.ops || (snm.ops = {}));
 })(snm || (snm = {}));
+/// <reference path="../../typings/angular/angular.d.ts" />
+/// <reference path="../app-constants.ts" />
+/// <reference path="./components/site-archeo-list/site-archeo-list.component.ts" />
+/// <reference path="./components/site-localisation/site-localisation.component.ts" />
+/// <reference path="./components/site-ops-map/site-ops-map.component.ts" />
+/// <reference path="./components/site-operations/site-operations.component.ts" />
+var snm;
+(function (snm) {
+    var ops;
+    (function (ops) {
+        angular.module(snm.AppConstants.OPS_MODULE_NAME, [
+            "snm.services.dal.dbContext",
+            "snm.ops.components.siteArcheoList",
+            "snm.ops.components.siteLocalisation",
+            "snm.ops.components.siteOperations",
+        ]);
+    })(ops = snm.ops || (snm.ops = {}));
+})(snm || (snm = {}));
 /// <reference path="../../../typings/angular/angular.d.ts" />
 /// <reference path="./definitions.ts" />
 var snm;
@@ -1902,306 +2063,6 @@ var snm;
         })(dal = services.dal || (services.dal = {}));
     })(services = snm.services || (snm.services = {}));
 })(snm || (snm = {}));
-/// <reference path="../definitions.ts" />
-/// <reference path="../../services/dal/entity-base.ts" />
-/// <reference path="../../services/dal/db-context.ts" />
-var snm;
-(function (snm) {
-    var ops;
-    (function (ops) {
-        var Departement = (function (_super) {
-            __extends(Departement, _super);
-            //endregion
-            function Departement(dbContext, data) {
-                _super.call(this, dbContext);
-                if (data) {
-                    this._numero = data.numero;
-                    this._nom = data.nom;
-                }
-            }
-            Object.defineProperty(Departement.prototype, "numero", {
-                get: function () {
-                    return this._numero;
-                },
-                set: function (value) {
-                    this._numero = value;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(Departement.prototype, "nom", {
-                get: function () {
-                    return this._nom;
-                },
-                set: function (value) {
-                    this._nom = value;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Departement.prototype.getKey = function () {
-                return this._numero;
-            };
-            return Departement;
-        }(snm.services.dal.EntityBase));
-        ops.Departement = Departement;
-    })(ops = snm.ops || (snm.ops = {}));
-})(snm || (snm = {}));
-/// <reference path="../../../typings/angular/angular.d.ts" />
-/// <reference path="../models/departement.ts" />
-/// <reference path="../definitions.ts" />
-/// <reference path="../../services/dal/entity-set.ts" />
-var snm;
-(function (snm) {
-    var ops;
-    (function (ops) {
-        var dal;
-        (function (dal) {
-            var DepartementSet = (function (_super) {
-                __extends(DepartementSet, _super);
-                function DepartementSet(dbContext, $http) {
-                    _super.call(this, dbContext, {
-                        $http: $http,
-                        parseEntity: function (dbContext, data) {
-                            return new ops.Departement(dbContext, data);
-                        },
-                        getAllUrl: "api/ops/common/departement"
-                    });
-                    this.refresh();
-                }
-                return DepartementSet;
-            }(snm.services.dal.EntitySet));
-            dal.DepartementSet = DepartementSet;
-        })(dal = ops.dal || (ops.dal = {}));
-    })(ops = snm.ops || (snm.ops = {}));
-})(snm || (snm = {}));
-/// <reference path="../definitions.ts" />
-/// <reference path="../../services/dal/entity-base.ts" />
-/// <reference path="../../services/dal/db-context.ts" />
-var snm;
-(function (snm) {
-    var ops;
-    (function (ops) {
-        var Commune = (function (_super) {
-            __extends(Commune, _super);
-            //endregion
-            function Commune(dbContext, data) {
-                _super.call(this, dbContext);
-                if (data) {
-                    this._code = data.code;
-                    this._nom = data.nom;
-                    this._x = data.x;
-                    this._y = data.y;
-                    this._departementId = data.departementId;
-                    this._codeRegion = data.codeRegion;
-                }
-            }
-            Object.defineProperty(Commune.prototype, "code", {
-                get: function () {
-                    return this._code;
-                },
-                set: function (value) {
-                    this._code = value;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(Commune.prototype, "nom", {
-                get: function () {
-                    return this._nom;
-                },
-                set: function (value) {
-                    this._nom = value;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(Commune.prototype, "x", {
-                get: function () {
-                    return this._x;
-                },
-                set: function (value) {
-                    this._x = value;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(Commune.prototype, "y", {
-                get: function () {
-                    return this._y;
-                },
-                set: function (value) {
-                    this._y = value;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(Commune.prototype, "departementId", {
-                get: function () {
-                    return this._departementId;
-                },
-                set: function (value) {
-                    this._departementId = value;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(Commune.prototype, "departement", {
-                get: function () {
-                    return this._dbContext.getRepository("Departement").getByKey(this._departementId);
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(Commune.prototype, "codeRegion", {
-                get: function () {
-                    return this._codeRegion;
-                },
-                set: function (value) {
-                    this._codeRegion = value;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Commune.prototype.getKey = function () {
-                return this._code;
-            };
-            return Commune;
-        }(snm.services.dal.EntityBase));
-        ops.Commune = Commune;
-    })(ops = snm.ops || (snm.ops = {}));
-})(snm || (snm = {}));
-/// <reference path="../../../typings/angular/angular.d.ts" />
-/// <reference path="../models/commune.ts" />
-/// <reference path="../definitions.ts" />
-/// <reference path="../../services/dal/entity-set.ts" />
-var snm;
-(function (snm) {
-    var ops;
-    (function (ops) {
-        var dal;
-        (function (dal) {
-            var CommuneSet = (function (_super) {
-                __extends(CommuneSet, _super);
-                function CommuneSet(dbContext, $http) {
-                    _super.call(this, dbContext, {
-                        $http: $http,
-                        parseEntity: function (dbContext, data) {
-                            return new ops.Commune(dbContext, data);
-                        },
-                        getAllUrl: "api/ops/common/commune"
-                    });
-                    this.refresh();
-                }
-                return CommuneSet;
-            }(snm.services.dal.EntitySet));
-            dal.CommuneSet = CommuneSet;
-        })(dal = ops.dal || (ops.dal = {}));
-    })(ops = snm.ops || (snm.ops = {}));
-})(snm || (snm = {}));
-/// <reference path="../../../typings/angular/angular.d.ts" />
-/// <reference path="../models/commune.ts" />
-/// <reference path="../definitions.ts" />
-/// <reference path="../../services/dal/entity-set.ts" />
-var snm;
-(function (snm) {
-    var ops;
-    (function (ops) {
-        var dal;
-        (function (dal) {
-            var SiteArcheoSet = (function (_super) {
-                __extends(SiteArcheoSet, _super);
-                function SiteArcheoSet(dbContext, $http) {
-                    _super.call(this, dbContext, {
-                        $http: $http,
-                        parseEntity: function (dbContext, data) {
-                            return new ops.SiteArcheo(dbContext, data);
-                        },
-                        getAllUrl: "api/ops/sites/summary"
-                    });
-                    this.refresh();
-                }
-                return SiteArcheoSet;
-            }(snm.services.dal.EntitySet));
-            dal.SiteArcheoSet = SiteArcheoSet;
-        })(dal = ops.dal || (ops.dal = {}));
-    })(ops = snm.ops || (snm.ops = {}));
-})(snm || (snm = {}));
-/// <reference path="../../../typings/angular/angular.d.ts" />
-/// <reference path="../models/commune.ts" />
-/// <reference path="../definitions.ts" />
-/// <reference path="../../services/dal/entity-set.ts" />
-var snm;
-(function (snm) {
-    var ops;
-    (function (ops) {
-        var dal;
-        (function (dal) {
-            var OperationArcheoSet = (function (_super) {
-                __extends(OperationArcheoSet, _super);
-                function OperationArcheoSet(dbContext, $http) {
-                    _super.call(this, dbContext, {
-                        $http: $http,
-                        parseEntity: function (dbContext, data) {
-                            return new ops.OperationArcheo(dbContext, data);
-                        },
-                        getAllUrl: "api/ops/operations"
-                    });
-                    this.refresh();
-                }
-                OperationArcheoSet.prototype.getBySiteId = function (siteId) {
-                    if (typeof siteId !== "number") {
-                        throw new Error("SiteId must be a number.");
-                    }
-                    var result = [];
-                    this._map.forEach(function (op) {
-                        if (op.siteId === siteId) {
-                            result.push(op);
-                        }
-                    });
-                    return result;
-                };
-                return OperationArcheoSet;
-            }(snm.services.dal.EntitySet));
-            dal.OperationArcheoSet = OperationArcheoSet;
-        })(dal = ops.dal || (ops.dal = {}));
-    })(ops = snm.ops || (snm.ops = {}));
-})(snm || (snm = {}));
-/// <reference path="../../typings/angular/angular.d.ts" />
-/// <reference path="../app-constants.ts" />
-/// <reference path="./components/site-archeo-list/site-archeo-list.component.ts" />
-/// <reference path="./components/site-localisation/site-localisation.component.ts" />
-/// <reference path="./components/site-ops-map/site-ops-map.component.ts" />
-/// <reference path="../services/dal/db-context.ts" />
-/// <reference path="./dal/departement-set.ts" />
-/// <reference path="./dal/commune-set.ts" />
-/// <reference path="./dal/site-archeo-set.ts" />
-/// <reference path="./dal/operation-archeo-set.ts" />
-var snm;
-(function (snm) {
-    var ops;
-    (function (ops) {
-        var DbContext = snm.services.dal.DbContext;
-        angular.module(snm.AppConstants.OPS_MODULE_NAME, [
-            "snm.services.dal.dbContext",
-            "snm.ops.components.siteArcheoList",
-            "snm.ops.components.siteLocalisation",
-        ]).run(["dbContext", function (dbContext) {
-                DbContext.addRepository("Departement", function (dbContext, $http) {
-                    return new snm.ops.dal.DepartementSet(dbContext, $http);
-                });
-                DbContext.addRepository("Commune", function (dbContext, $http) {
-                    return new snm.ops.dal.CommuneSet(dbContext, $http);
-                });
-                DbContext.addRepository("SiteArcheo", function (dbContext, $http) {
-                    return new snm.ops.dal.SiteArcheoSet(dbContext, $http);
-                });
-                DbContext.addRepository("OperationArcheo", function (dbContext, $http) {
-                    return new snm.ops.dal.OperationArcheoSet(dbContext, $http);
-                });
-            }]);
-    })(ops = snm.ops || (snm.ops = {}));
-})(snm || (snm = {}));
 /// <reference path="../../pers/definitions.ts" />
 /// <reference path="../../services/dal/entity-base.ts" />
 /// <reference path="../../services/dal/db-context.ts" />
@@ -2320,14 +2181,8 @@ var snm;
         (function (components) {
             var PhasesChronologiquesController = (function () {
                 function PhasesChronologiquesController($scope, dbContext) {
-                    var _this = this;
                     this.$scope = $scope;
                     this.dbContext = dbContext;
-                    var repoPhaseChrono = dbContext.getRepository("PhaseChronologique");
-                    repoPhaseChrono.refresh().then(function () {
-                        _this.phases = repoPhaseChrono.getAll();
-                        _this.$scope.$applyAsync();
-                    });
                 }
                 Object.defineProperty(PhasesChronologiquesController.prototype, "phases", {
                     get: function () {
@@ -2359,6 +2214,14 @@ var snm;
                     enumerable: true,
                     configurable: true
                 });
+                PhasesChronologiquesController.prototype.$onInit = function () {
+                    var _this = this;
+                    var repoPhaseChrono = this.dbContext.getRepository("PhaseChronologique");
+                    repoPhaseChrono.refresh().then(function () {
+                        _this.phases = repoPhaseChrono.getAll();
+                        _this.$scope.$applyAsync();
+                    });
+                };
                 PhasesChronologiquesController.$inject = ["$scope", "dbContext"];
                 return PhasesChronologiquesController;
             }());
@@ -2755,6 +2618,271 @@ var Bootstrap = (function () {
     return Bootstrap;
 }());
 Bootstrap.initialize();
+/// <reference path="../definitions.ts" />
+/// <reference path="../../services/dal/entity-base.ts" />
+/// <reference path="../../services/dal/db-context.ts" />
+var snm;
+(function (snm) {
+    var ops;
+    (function (ops) {
+        var Commune = (function (_super) {
+            __extends(Commune, _super);
+            //endregion
+            function Commune(dbContext, data) {
+                _super.call(this, dbContext);
+                if (data) {
+                    this._code = data.code;
+                    this._nom = data.nom;
+                    this._x = data.x;
+                    this._y = data.y;
+                    this._departementId = data.departementId;
+                    this._codeRegion = data.codeRegion;
+                }
+            }
+            Object.defineProperty(Commune.prototype, "code", {
+                get: function () {
+                    return this._code;
+                },
+                set: function (value) {
+                    this._code = value;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Commune.prototype, "nom", {
+                get: function () {
+                    return this._nom;
+                },
+                set: function (value) {
+                    this._nom = value;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Commune.prototype, "x", {
+                get: function () {
+                    return this._x;
+                },
+                set: function (value) {
+                    this._x = value;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Commune.prototype, "y", {
+                get: function () {
+                    return this._y;
+                },
+                set: function (value) {
+                    this._y = value;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Commune.prototype, "departementId", {
+                get: function () {
+                    return this._departementId;
+                },
+                set: function (value) {
+                    this._departementId = value;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Commune.prototype, "departement", {
+                get: function () {
+                    return this._dbContext.getRepository("Departement").getByKey(this._departementId);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Commune.prototype, "codeRegion", {
+                get: function () {
+                    return this._codeRegion;
+                },
+                set: function (value) {
+                    this._codeRegion = value;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Commune.prototype.getKey = function () {
+                return this._code;
+            };
+            return Commune;
+        }(snm.services.dal.EntityBase));
+        ops.Commune = Commune;
+    })(ops = snm.ops || (snm.ops = {}));
+})(snm || (snm = {}));
+/// <reference path="../../../typings/angular/angular.d.ts" />
+/// <reference path="../models/commune.ts" />
+/// <reference path="../definitions.ts" />
+/// <reference path="../../services/dal/entity-set.ts" />
+var snm;
+(function (snm) {
+    var ops;
+    (function (ops) {
+        var dal;
+        (function (dal) {
+            var CommuneSet = (function (_super) {
+                __extends(CommuneSet, _super);
+                function CommuneSet(dbContext, $http) {
+                    _super.call(this, dbContext, {
+                        $http: $http,
+                        parseEntity: function (dbContext, data) {
+                            return new ops.Commune(dbContext, data);
+                        },
+                        getAllUrl: "api/ops/common/commune"
+                    });
+                    this.refresh();
+                }
+                return CommuneSet;
+            }(snm.services.dal.EntitySet));
+            dal.CommuneSet = CommuneSet;
+        })(dal = ops.dal || (ops.dal = {}));
+    })(ops = snm.ops || (snm.ops = {}));
+})(snm || (snm = {}));
+/// <reference path="../definitions.ts" />
+/// <reference path="../../services/dal/entity-base.ts" />
+/// <reference path="../../services/dal/db-context.ts" />
+var snm;
+(function (snm) {
+    var ops;
+    (function (ops) {
+        var Departement = (function (_super) {
+            __extends(Departement, _super);
+            //endregion
+            function Departement(dbContext, data) {
+                _super.call(this, dbContext);
+                if (data) {
+                    this._numero = data.numero;
+                    this._nom = data.nom;
+                }
+            }
+            Object.defineProperty(Departement.prototype, "numero", {
+                get: function () {
+                    return this._numero;
+                },
+                set: function (value) {
+                    this._numero = value;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Departement.prototype, "nom", {
+                get: function () {
+                    return this._nom;
+                },
+                set: function (value) {
+                    this._nom = value;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Departement.prototype.getKey = function () {
+                return this._numero;
+            };
+            return Departement;
+        }(snm.services.dal.EntityBase));
+        ops.Departement = Departement;
+    })(ops = snm.ops || (snm.ops = {}));
+})(snm || (snm = {}));
+/// <reference path="../../../typings/angular/angular.d.ts" />
+/// <reference path="../models/departement.ts" />
+/// <reference path="../definitions.ts" />
+/// <reference path="../../services/dal/entity-set.ts" />
+var snm;
+(function (snm) {
+    var ops;
+    (function (ops) {
+        var dal;
+        (function (dal) {
+            var DepartementSet = (function (_super) {
+                __extends(DepartementSet, _super);
+                function DepartementSet(dbContext, $http) {
+                    _super.call(this, dbContext, {
+                        $http: $http,
+                        parseEntity: function (dbContext, data) {
+                            return new ops.Departement(dbContext, data);
+                        },
+                        getAllUrl: "api/ops/common/departement"
+                    });
+                    this.refresh();
+                }
+                return DepartementSet;
+            }(snm.services.dal.EntitySet));
+            dal.DepartementSet = DepartementSet;
+        })(dal = ops.dal || (ops.dal = {}));
+    })(ops = snm.ops || (snm.ops = {}));
+})(snm || (snm = {}));
+/// <reference path="../../../typings/angular/angular.d.ts" />
+/// <reference path="../models/commune.ts" />
+/// <reference path="../definitions.ts" />
+/// <reference path="../../services/dal/entity-set.ts" />
+var snm;
+(function (snm) {
+    var ops;
+    (function (ops) {
+        var dal;
+        (function (dal) {
+            var OperationArcheoSet = (function (_super) {
+                __extends(OperationArcheoSet, _super);
+                function OperationArcheoSet(dbContext, $http) {
+                    _super.call(this, dbContext, {
+                        $http: $http,
+                        parseEntity: function (dbContext, data) {
+                            return new ops.OperationArcheo(dbContext, data);
+                        },
+                        getAllUrl: "api/ops/operations"
+                    });
+                    this.refresh();
+                }
+                OperationArcheoSet.prototype.getBySiteId = function (siteId) {
+                    if (typeof siteId !== "number") {
+                        throw new Error("SiteId must be a number.");
+                    }
+                    var result = [];
+                    this._map.forEach(function (op) {
+                        if (op.siteId === siteId) {
+                            result.push(op);
+                        }
+                    });
+                    return result;
+                };
+                return OperationArcheoSet;
+            }(snm.services.dal.EntitySet));
+            dal.OperationArcheoSet = OperationArcheoSet;
+        })(dal = ops.dal || (ops.dal = {}));
+    })(ops = snm.ops || (snm.ops = {}));
+})(snm || (snm = {}));
+/// <reference path="../../../typings/angular/angular.d.ts" />
+/// <reference path="../models/commune.ts" />
+/// <reference path="../definitions.ts" />
+/// <reference path="../../services/dal/entity-set.ts" />
+var snm;
+(function (snm) {
+    var ops;
+    (function (ops) {
+        var dal;
+        (function (dal) {
+            var SiteArcheoSet = (function (_super) {
+                __extends(SiteArcheoSet, _super);
+                function SiteArcheoSet(dbContext, $http) {
+                    _super.call(this, dbContext, {
+                        $http: $http,
+                        parseEntity: function (dbContext, data) {
+                            return new ops.SiteArcheo(dbContext, data);
+                        },
+                        getAllUrl: "api/ops/sites/summary"
+                    });
+                    this.refresh();
+                }
+                return SiteArcheoSet;
+            }(snm.services.dal.EntitySet));
+            dal.SiteArcheoSet = SiteArcheoSet;
+        })(dal = ops.dal || (ops.dal = {}));
+    })(ops = snm.ops || (snm.ops = {}));
+})(snm || (snm = {}));
 /// <reference path="../definitions.ts" />
 /// <reference path="../../chrono/definitions.ts" />
 /// <reference path="../../pers/definitions.ts" />

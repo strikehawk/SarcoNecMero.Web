@@ -44,6 +44,10 @@
 .site-page .site-reference, .site-page .site-header-edition md-input-container.site-reference {
     width: 200px;
 }
+
+.site-page site-operations {
+    margin-top: 10px;
+}
 md-nav-bar .md-button._md-nav-button.md-unselected {
     color: rgba(255, 255, 255, 0.54);
 }
@@ -70,6 +74,28 @@ md-nav-bar .md-button._md-nav-button.md-unselected {
     color: black;
     font-size:10px
 }
+.layer-picker {
+    max-width: 200px;
+    height: 76px;
+}
+
+.layer-picker .tile-container {
+    display: flex;
+    flex-direction: row;
+}
+
+.layer-picker .layer-picker-tile  {
+    background: white;
+    padding: 4px;
+    margin-right: 5px;
+}
+
+.layer-picker .layer-picker-tile .md-button {
+    margin: 0;
+    padding: 0;
+    min-width: inherit;
+    line-height: inherit;
+}
 md-toolbar.map-toolbar {
     min-height: 40px;
 }
@@ -86,6 +112,13 @@ md-toolbar.map-toolbar {
     width: 135px;
     cursor: pointer;
 }
+.site-localisation .coordinates {
+    font-size: 12px;
+}
+.site-ops-map .map {
+    height: 400px;
+}
+
 .site-archeo-list {
     padding: 0;
 }
@@ -114,13 +147,21 @@ md-toolbar.map-toolbar {
     margin-right: 10px;
 }
 
-.site-localisation .coordinates {
-    font-size: 12px;
-}
-.site-ops-map .map {
-    height: 400px;
+md-toolbar.site-operations {
+    min-height: 40px;
 }
 
+.site-operations span {
+    font-size: 14px;
+}
+
+.site-operations .md-toolbar-tools {
+    max-height: 40px;
+}
+
+.site-operations-list {
+    padding: 0;
+}
 .panneaux-site-list {
     display: flex;
     flex-direction: row;
